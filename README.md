@@ -3,7 +3,7 @@
 coffea setup for monohbb run2
 
 
-## Virtual environmen
+## Setup virtual environment
 ```
 python3 -m venv my_env
 source my_env/bin/activate

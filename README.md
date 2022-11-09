@@ -9,6 +9,9 @@ source my_env/bin/activate
 pip install coffea
 ```
 
+## copy code 
+```
+
 git clone git@github.com:deepakcern/coffeaTool.git
 
 cd coffeaTool

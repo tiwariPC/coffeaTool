@@ -1,5 +1,6 @@
 # coffeaTool (Reading data with coffea NanoEvents)
 ### for more information : https://coffeateam.github.io/coffea/installation.html
+### Nano AOD Data tier : https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookNanoAOD
 coffea setup for monohbb run2
 
 

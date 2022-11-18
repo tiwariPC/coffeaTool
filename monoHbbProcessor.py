@@ -8,6 +8,13 @@ from coffea.btag_tools import BTagScaleFactor
 from coffea.analysis_tools import Weights
 from coffea.lookup_tools.dense_lookup import dense_lookup
 import data_2017.SFFactory_2017 as sf17
+import data_2017.SFFactorySystUp_2017 as sf17Up
+import data_2017.SFFactorySystDown_2017 as sf17Down
+
+import data_2018.SFFactory_2018 as sf18
+import data_2018.SFFactorySystUp_2018 as sf18Up
+import data_2018.SFFactorySystDown_2018 as sf18Down
+
 from config.functions import *
 from config.outVars import *
 from coffea.lookup_tools import extractor
@@ -19,13 +26,42 @@ class monoHbbProcessor(processor.ProcessorABC):
     def __init__(self):
         pass
 
+    def setupYearDependency(self,events):
+        self.year = events.metadata["year"]
+        if self.year=="2017":
+            self.LWP = 0.1522
+            self.MWP = 0.4941
+            self.ResolvedmetSF = {"center":sf17.R_metTrig_firstmethod,"Up":sf17Up.R_metTrig_firstmethod_SystUp,"Down":sf17Down.R_metTrig_firstmethod_SystDown}
+            self.ResolvedmetSFRange = sf17.R_metTrig_firstmethod_X_range
+            self.BoostedmetSF  = {"center":sf17.B_metTrig_firstmethod,"Up":sf17Up.B_metTrig_firstmethod_SystUp,"Down":sf17Down.B_metTrig_firstmethod_SystDown}
+            self.BoostedmetSFRange = sf17.B_metTrig_firstmethod_X_range
+            self.PileReweightHisto  = {"center":sf17.pileup2017histo,"Up":sf17Up.pileup2017histo_SystUp,"Down":sf17Down.pileup2017histo_SystDown}
+            self.PileReweightRange  = sf17.pileup2017histo_X_range
+            self.btagEffroot   = "data_2017/bTagEffs_2017.root"
+            self.btagCSVfile   = "data_2017/DeepCSV_94XSF_V5_B_F.csv.gz"
+
+        if self.year=="2018":
+            self.LWP = 0.1241
+            self.MWP = 0.4184        
+
+            self.ResolvedmetSF = {"center":sf18.R_metTrig_firstmethod,"Up":sf18Up.R_metTrig_firstmethod_SystUp,"Down":sf18Down.R_metTrig_firstmethod_SystDown}
+            self.ResolvedmetSFRange = sf18.R_metTrig_firstmethod_X_range
+
+            self.BoostedmetSF  = {"center":sf18.B_metTrig_firstmethod,"Up":sf18Up.B_metTrig_firstmethod_SystUp,"Down":sf18Down.B_metTrig_firstmethod_SystDown}
+            self.BoostedmetSFRange = sf18.B_metTrig_firstmethod_X_range
+
+            self.PileReweightHisto  = {"center":sf18.pileup2018histo,"Up":sf18Up.pileup2018histo_SystUp,"Down":sf18Down.pileup2018histo_SystDown}
+            self.PileReweightRange  = sf18.pileup2018histo_X_range
+            self.btagEffroot   = "data_2018/bTagEffs_2018.root"
+            self.btagCSVfile   = "data_2018/DeepCSV_102XSF_V2.csv"
+
     
     def addWeights(self,events):
         weights = {"Boosted":Weights(len(events)),"Resolved":Weights(len(events))}
         #weights = Weights(len(events))
-        corr_met = dense_lookup(np.array(sf17.R_metTrig_firstmethod),np.array(sf17.R_metTrig_firstmethod_X_range) )
-        corr_met_B = dense_lookup(np.array(sf17.B_metTrig_firstmethod),np.array(sf17.B_metTrig_firstmethod_X_range) )
-        corr_pu  = dense_lookup(np.array(sf17.pileup2017histo),np.array(sf17.pileup2017histo_X_range))
+        corr_met = dense_lookup(np.array(self.ResolvedmetSF["center"]),np.array(self.ResolvedmetSFRange))
+        corr_met_B = dense_lookup(np.array(self.BoostedmetSF["center"]),np.array(self.BoostedmetSFRange) )
+        corr_pu  = dense_lookup(np.array(self.PileReweightHisto["center"]),np.array(self.PileReweightRange))
 
         weights["Boosted"].add("metSF",weight=corr_met_B(events.st_METXYCorr_Met),weightUp=corr_met_B(events.st_METXYCorr_Met),weightDown=corr_met_B(events.st_METXYCorr_Met))
         weights["Boosted"].add("pileupSF",weight=corr_pu(events.st_pu_nTrueInt),weightUp=corr_pu(events.st_pu_nTrueInt),weightDown=corr_pu(events.st_pu_nTrueInt))
@@ -40,14 +76,15 @@ class monoHbbProcessor(processor.ProcessorABC):
         weights["Boosted"].add("mcweight",weight=events.mcweight)
         weights["Resolved"].add("mcweight",weight=events.mcweight)
 
-        ext = extractor()
-        ext.add_weight_sets(["btag_eff_mwp efficiency_btag_mwp data_2017/bTagEffs_2017.root"])
-        ext.add_weight_sets(["ctag_eff_mwp efficiency_ctag_mwp data_2017/bTagEffs_2017.root"])
-        ext.add_weight_sets(["lighttag_eff_mwp efficiency_lighttag_mwp data_2017/bTagEffs_2017.root"])
 
-        ext.add_weight_sets(["btag_eff_lwp efficiency_btag_lwp data_2017/bTagEffs_2017.root"])
-        ext.add_weight_sets(["ctag_eff_lwp efficiency_ctag_lwp data_2017/bTagEffs_2017.root"])
-        ext.add_weight_sets(["lighttag_eff_lwp efficiency_lighttag_lwp data_2017/bTagEffs_2017.root"])
+        ext = extractor()
+        ext.add_weight_sets(["btag_eff_mwp efficiency_btag_mwp "+self.btagEffroot])
+        ext.add_weight_sets(["ctag_eff_mwp efficiency_ctag_mwp "+self.btagEffroot])
+        ext.add_weight_sets(["lighttag_eff_mwp efficiency_lighttag_mwp "+self.btagEffroot])
+
+        ext.add_weight_sets(["btag_eff_lwp efficiency_btag_lwp "+self.btagEffroot])
+        ext.add_weight_sets(["ctag_eff_lwp efficiency_ctag_lwp "+self.btagEffroot])
+        ext.add_weight_sets(["lighttag_eff_lwp efficiency_lighttag_lwp "+self.btagEffroot])
 
         ext.finalize()
         evaluator = ext.make_evaluator()
@@ -56,11 +93,12 @@ class monoHbbProcessor(processor.ProcessorABC):
         '''
         COMPUTE B TAG WEGIHTS FOR RESOLVED CATEGORY [FOR TAG AND NON TAG]
         '''
-
-        btagIndex  = events.st_THINjetDeepCSV>0.4941        
+        MWP = self.MWP
+        LWP = self.LWP
+        btagIndex  = events.st_THINjetDeepCSV>MWP    
         nonbtagIndex = ~btagIndex
 
-        btag_sf_evaluator = BTagScaleFactor("data_2017/DeepCSV_94XSF_V5_B_F.csv.gz", "medium")
+        btag_sf_evaluator = BTagScaleFactor(self.btagCSVfile, "medium")
         
         
         btagCal=getbTagWegiht(btag_sf_evaluator,evaluator,events.st_THINjetHadronFlavor,events.jeteta,events.jetpt,btagIndex,nonbtagIndex,wptype="medium")
@@ -72,8 +110,8 @@ class monoHbbProcessor(processor.ProcessorABC):
         '''
         ================= Compute b tag weights for boosted category ====
         '''
-        isobtag_sf_evaluator = BTagScaleFactor("data_2017/DeepCSV_94XSF_V5_B_F.csv.gz", "loose")
-        isobtagIndex  = events.isojetDeepCSV>0.1522
+        isobtag_sf_evaluator = BTagScaleFactor(self.btagCSVfile, "loose")
+        isobtagIndex  = events.isojetDeepCSV>LWP
         isononbtagIndex = ~isobtagIndex
 
         isobtagCal=getbTagWegiht(isobtag_sf_evaluator,evaluator,events.isojetHadronFlavor,events.isojeteta,events.isojetpt,isobtagIndex,isononbtagIndex,wptype="loose")        
@@ -120,6 +158,7 @@ class monoHbbProcessor(processor.ProcessorABC):
 
 
         events["minDphi_jetMet"]= np.abs(ak.min(DeltaPhi(events.jetphi, events.st_METXYCorr_MetPhi), axis=-1))
+        events["Dphi_trkpfMet"] = np.abs(DeltaPhi(events.st_pfTRKMETPhi,events.st_METXYCorr_MetPhi))
 
         events['fjetpt']    =getpt(events.st_fjetPx,events.st_fjetPy)
         events['fjeteta']   =geteta(events.st_fjetPx,events.st_fjetPy,events.st_fjetPz)
@@ -131,23 +170,24 @@ class monoHbbProcessor(processor.ProcessorABC):
         events['fjeteta']= events.fjeteta[fjet_sel]
         events['fjetphi']= events.fjetphi[fjet_sel]
         events['fjetmass'] =events.st_fjetSDMass[fjet_sel]
+        events['fjetcsv'] = events.st_fjetProbHbb[fjet_sel]
 
-        MWP = 0.4941
+        MWP = self.MWP#0.4941
         bjetCond            =(events.st_THINjetDeepCSV>MWP) 
         events['bjetpt']    =events.jetpt[bjetCond]
         events['bjeteta']   =events.jeteta[bjetCond]
         events['bjetphi']   =events.jetphi[bjetCond]
         events['bjetHadronFla'] = events.st_THINjetHadronFlavor[bjetCond]
         events['bjetE']       =events.st_THINjetEnergy[bjetCond]
-        bmass = getMassPair(events.st_THINjetPx[bjetCond],events.st_THINjetPy[bjetCond],events.st_THINjetPz[bjetCond],events.st_THINjetEnergy[bjetCond])
-        events['DiJetMass']     = bmass
+        
+        events['DiJetMass']     = getMassPair(events.st_THINjetPx[bjetCond],events.st_THINjetPy[bjetCond],events.st_THINjetPz[bjetCond],events.st_THINjetEnergy[bjetCond])
         parivars = getPair_ptetaphi(events.st_THINjetPx[bjetCond],events.st_THINjetPy[bjetCond],events.st_THINjetPz[bjetCond],events.st_THINjetEnergy[bjetCond])
         events['DiJetPt'] = parivars["pt"]
         events['DiJetEta'] = parivars["eta"]
         events['DiJetPhi'] = parivars["phi"]
 
 
-        LWP = 0.1522
+        LWP = self.LWP#0.1522
 
 
         cleaned = isclean(events.jeteta,events.fjeteta,events.jetphi,events.fjetphi,cut_=0.8)
@@ -214,11 +254,12 @@ class monoHbbProcessor(processor.ProcessorABC):
         return events
  
     def process(self, events):
-        print ("code is running now")
+        print ('\n'+"================ Processor  is running now =================="+'\n')
+
         dataset = events.metadata['dataset']
+        self.setupYearDependency(events)
         events  = self.updateJetColl(events)
         events  = self.addMainColoumns(events)
-#        events  = events[events.st_eventId==26755655]
         '''
         ========================
         SISNAL REGION SELECTIONS
@@ -239,16 +280,17 @@ class monoHbbProcessor(processor.ProcessorABC):
         selection.add("leadbJetPt50", ak.any(events.bjetpt >= 50.0, axis=1))
         selection.add("bmass", ak.any(events.DiJetMass < 150,axis=1) & ak.any(events.DiJetMass > 100,axis=1))
         selection.add("minDphi",events.minDphi_jetMet>0.4)
+        selection.add("invrtminDphi",events.minDphi_jetMet<0.4)
         selection.add("nfjet",events.nfjet==1)
         selection.add("noIsobjet",ak.num(events.isobjetpt)==0)
         selection.add("nIsojet",ak.num(events.isojetpt)<=2)
 
-        regions = {"sr": {"noElectron":True, "noMuon":True, "noPhoton":True,"metcut":True,"nJets":True,"twobJets":True,"bmass":True,"minDphi":True}}
 
-        #cutflow = {"trigger":{"trigger"},"eleVeto":{"noElectron"},"muonVeo":{"noElectron","noMuon"},"TauVeto":{"noElectron","noMuon","noTau"},"phoVeto":{"noElectron","noMuon","noPhoton"},"metcut":{"noElectron","noMuon","noPhoton","metcut"},"nJets":{"noElectron","noMuon","noPhoton","metcut","nJets"},"bJets":{"noElectron","noMuon","noPhoton","metcut","nJets","twobJets"},"mass":{"noElectron","noMuon","noPhoton","metcut","nJets","twobJets","bmass"},"minDphi":{"noElectron","noMuon","noPhoton","metcut","nJets","twobJets","bmass","minDphi"}}
-
-     
-        #cutflow_B = {"trigger":{"trigger"},"eleVeto":{"noElectron"},"muonVeo":{"noElectron","noMuon"},"TauVeto":{"noElectron","noMuon","noTau"},"phoVeto":{"noElectron","noMuon","noPhoton"},"metcut":{"noElectron","noMuon","noPhoton","metcut250"},"nfjet":{"noElectron","noMuon","noPhoton","metcut250","nfjet"},"nIsojet":{"noElectron","noMuon","noPhoton","metcut250","nfjet","nIsojet"},"noIsobjet":{"noElectron","noMuon","noPhoton","metcut250","nfjet","nIsojet","noIsobjet"},"minDphi":{"noElectron","noMuon","noPhoton","metcut250","nfjet","nIsojet","noIsobjet","minDphi"}}
+        '''
+        --------------------------------------------
+        GET EVENT WEIGHTS FOR MC AND SET 1 FOR DATA
+        -------------------------------------------
+        '''
 
         if not events.metadata['isData']:
             weights = self.addWeights(events)
@@ -261,46 +303,58 @@ class monoHbbProcessor(processor.ProcessorABC):
         '''
 	
         fout = uproot.recreate(events.metadata['outputpath']+'/'+events.metadata['filename'])
-        for region, cuts in regions_R.items():
-            goodevent = (selection.require(**cuts)) & (~selection.require(**regions_B[region]))
-         #   weights = self.addWeights(events)[goodevent]
-            if region.startswith("sr"):
-                fout["monoHbb_SR_resolved"] = fillbranch_R(events,goodevent,weights["Resolved"])
 
         for region, cuts in regions_B.items():
            goodevent = selection.require(**cuts)
            if region.startswith("sr"):
                 fout["monoHbb_SR_boosted"] = fillbranch_B(events,goodevent,weights["Boosted"])
 
+
+        for region, cuts in regions_R.items():
+            goodevent = (selection.require(**cuts)) & (~selection.require(**regions_B[region]))
+         #   weights = self.addWeights(events)[goodevent]
+            if region.startswith("sr"):
+                fout["monoHbb_SR_resolved"] = fillbranch_R(events,goodevent,weights["Resolved"])
+
         totalevents      =events.metadata['totalevents']
         totalweightevents=events.metadata['totalweightevents']
         h_total_mcweight = (hist.Hist.new.Reg(2, 0, 2, name="h_total_mcweight", label="").Weight())
         h_total          = (hist.Hist.new.Reg(2, 0, 2, name="h_total", label="").Weight())
+        h_cutflow_R      = (hist.Hist.new.Reg(12, 0, 12, name="h_total", label="").Weight())
+        h_cutflow_B      = (hist.Hist.new.Reg(12, 0, 12, name="h_total", label="").Weight())
         h_total_mcweight.fill(1)
         h_total.fill(1)
         fout["h_total_mcweight"] = h_total_mcweight * totalweightevents
         fout["h_total"]          = h_total * totalevents
-        fout.close()
+        
 
 
         '''
         ============ CUTFLOW ===========
         '''
-
+        values = {"Boosted":[],"Resolved":[]}
         for lebel, cut in cutflow_B.items():
              goodevent = selection.all(*(cut))
-             nev       = np.sum(goodevent)
-             print(f"Events passing  in boosted {lebel}: {nev}")
+             #nev       = np.sum(goodevent)
+             nev       = weights["Boosted"].weight()[goodevent].sum()
+             values["Boosted"].append(nev)
+             print(f"Boosted Events passing for : {lebel}: {nev}")
 
+        print ("")
         for lebel, cut in cutflow_R.items():
              goodevent = (selection.all(*(cut))) & (~selection.require(**regions_B["sr"]))
-             nev       = np.sum(goodevent)#weights.weight()[goodevent].sum()#goodevent.sum()
-             print(f"Events passing  {lebel}: {nev}")
+             #nev       = np.sum(goodevent)
+             nev       = weights["Resolved"].weight()[goodevent].sum()
+             values["Resolved"].append(nev)
+             print(f"Resolved Events passing for {lebel}: {nev}")
              
+        fout["h_cutflow_sr_boosted"] = fillcutflow(h_cutflow_B,values["Boosted"])
+        fout["h_cutflow_sr_resolved"]=fillcutflow(h_cutflow_R,values["Resolved"])
+        fout.close()
 
         return {
             dataset: {
-                "entries": len(events),
+                "entries":totalweightevents, #len(events),
                 #"mass": masshist,
         
               }

@@ -26,6 +26,6 @@ When you login into lxplus. Please make sure to setup environment first using co
 ## Run Code
 
 ```
-python runCode.py
+python  processSample.py -m   -y YEAR  -tag outputfolderName  -i rootfilename
 ```
 

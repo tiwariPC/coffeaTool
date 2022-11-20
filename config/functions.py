@@ -63,6 +63,7 @@ def getrecoil1(elepx_,elepy_,met_,metphi_):
     WenuRecoilPx = -( met_*numpy.cos(metphi_) + elepx_)
     WenuRecoilPy = -( met_*numpy.sin(metphi_) + elepy_)
     WenuRecoilPt = (numpy.sqrt(WenuRecoilPx**2  +  WenuRecoilPy**2))
+    #print ('elepx_',elepx_)
     return WenuRecoilPt
 
 
@@ -72,7 +73,16 @@ def getRecoilPhi1(elepx_,elepy_,met_,metphi_):
     WenurecoilPhi = numpy.arctan2(WenuRecoilPx,WenuRecoilPy)
     return WenurecoilPhi
 
+def getPair_pxpypz(bjetpx,bjetpy):
+    bjets = ak.zip({"px":bjetpx,"py":bjetpy})
+    pairs = ak.combinations(bjets, 2)
+    bjet1, bjet2 = ak.unzip(pairs)
+    return bjet1, bjet2
 
+def getrecoil2(elepx_,elepy_,met_,metphi_):
+    mu1 , mu2  = getPair_pxpypz(elepx_,elepy_)
+    return getrecoil1(mu1.px+mu2.px,mu1.py+mu2.py,met_,metphi_)
+ 
 def getN(var_, i):
     return ak.mask(var_, ak.num(var_, axis=1)>i, highlevel=False)[:,i]
 
@@ -95,6 +105,7 @@ def getPair_ptetaphi(bjetpx,bjetpy,bjetpz,bjetE):
     phi=getphi(Px,Py)
     pairVars ={"pt":pt,"eta":eta,"phi":phi}
     return pairVars
+
 
 def getTopPtReWgt(pt):
     w = 0.103*(numpy.exp(-0.0118*pt)) - 0.000134*pt + 0.973

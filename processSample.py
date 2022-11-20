@@ -29,7 +29,8 @@ if runOnFiles:
     if '.txt' in infile.split('/')[-1]:
         fname=open(infile).readline().rstrip()
 else:
-    fname='/eos/cms/store/group/phys_exotica/monoHiggs/monoHbb/skimmedFiles/TTTest.root'
+    fname='/eos/cms/store/group/phys_exotica/monoHiggs/monoHbb/skimmedFiles/merged_bkgrootfiles_splitted/MET-Run2017F-31Mar2018_0.root'
+    #fname='/eos/cms/store/group/phys_exotica/monoHiggs/monoHbb/skimmedFiles/TTTest.root'
     outputpath = '.'
     #fname='/eos/cms/store/group/phys_exotica/monoHiggs/monoHbb/2018_skimmedFiles/v12.09_NoJERdata/MET-Run2018D-PromptReco-v2_146.root'
 

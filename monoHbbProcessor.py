@@ -163,14 +163,14 @@ class monoHbbProcessor(processor.ProcessorABC):
         events['fjetpt']    =getpt(events.st_fjetPx,events.st_fjetPy)
         events['fjeteta']   =geteta(events.st_fjetPx,events.st_fjetPy,events.st_fjetPz)
         events['fjetphi']   =getphi(events.st_fjetPx,events.st_fjetPy)
-        
+ 
         fjet_sel = (np.abs(events.fjeteta) <2.5) & (events.st_fjetSDMass>70) & (events.st_fjetSDMass < 150) & (events.st_fjetProbHbb > 0.86)
-        events['nfjet'] = ak.num(events.fjetpt[fjet_sel])
-        events['fjetpt']= events.fjetpt[fjet_sel]
-        events['fjeteta']= events.fjeteta[fjet_sel]
-        events['fjetphi']= events.fjetphi[fjet_sel]
-        events['fjetmass'] =events.st_fjetSDMass[fjet_sel]
-        events['fjetcsv'] = events.st_fjetProbHbb[fjet_sel]
+        events['nfjetsel'] = ak.num(events.fjetpt[fjet_sel])
+        events['fjetptsel']= events.fjetpt[fjet_sel]
+        events['fjetetasel']= events.fjeteta[fjet_sel]
+        events['fjetphisel']= events.fjetphi[fjet_sel]
+        events['fjetmasssel'] =events.st_fjetSDMass[fjet_sel]
+        events['fjetcsvsel'] = events.st_fjetProbHbb[fjet_sel]
 
         MWP = self.MWP#0.4941
         bjetCond            =(events.st_THINjetDeepCSV>MWP) 
@@ -202,12 +202,6 @@ class monoHbbProcessor(processor.ProcessorABC):
         events['isobjetpt']     =events.isojetpt[bjetCondForBoosted]
         events['isobjeteta']    =events.isojeteta[bjetCondForBoosted]
         events['isobjetphi']    =events.isojetphi[bjetCondForBoosted]
-        
-
-        # events['isobjetpt']     = events.isojetpt[cleanediso]
-        # events['isobjeteta']    = events.isojeteta[cleanediso]
-        # events['isobjetphi']    = events.isojetphi[cleanediso]
-
 
         events['elept']         = getpt(events.st_elePx, events.st_elePy)	
         events['eleeta']        =geteta(events.st_elePx, events.st_elePy, events.st_elePz)
@@ -229,34 +223,20 @@ class monoHbbProcessor(processor.ProcessorABC):
 
         cleanedPho = (isclean(events.phoeta,events.jeteta,events.phophi,events.jetphi,cut_=0.4)) & (events.phopt>20)
         events['npho']          = ak.num(events.phopt[cleanedPho])
-
+        
         events['werecoilPt']     = getrecoil1(events.st_elePx,events.st_elePy,events.st_pfMetCorrPt,events.st_pfMetCorrPhi) 
         events['wmurecoilPt']     = getrecoil1(events.st_muPx,events.st_muPy,events.st_pfMetCorrPt,events.st_pfMetCorrPhi) 
+        events['zeerecoilPt'] = getrecoil2(events.st_elePx,events.st_elePy,events.st_pfMetCorrPt,events.st_pfMetCorrPhi)
+        events['zmumurecoilPt']=getrecoil2(events.st_muPx,events.st_muPy,events.st_pfMetCorrPt,events.st_pfMetCorrPhi)
 
-        ele1px      = ak.Array(getN(events.st_elePx,1))
-        ele0px      = ak.Array(getN(events.st_elePx,0))
-
-        ele1py      = ak.Array(getN(events.st_elePy,1))
-        ele0py      = ak.Array(getN(events.st_elePy,0))
-
-        mu1px      = ak.Array(getN(events.st_muPx,1))
-        mu0px      = ak.Array(getN(events.st_muPx,0))
-
-        mu1py      = ak.Array(getN(events.st_muPy,1))
-        mu0py      = ak.Array(getN(events.st_muPy,0))
-
-        events['zeerecoilPt'] = getrecoil1(ele1px+ele0px,ele1py+ele0py,events.st_pfMetCorrPt,events.st_pfMetCorrPhi)
-        events['zmumurecoilPt'] = getrecoil1(mu1px+mu0px,mu1py+mu0py,events.st_pfMetCorrPt,events.st_pfMetCorrPhi)
-
-
-
-
+    
         return events
  
     def process(self, events):
         print ('\n'+"================ Processor  is running now =================="+'\n')
 
         dataset = events.metadata['dataset']
+        events = events[(events.st_runId==306154) & (events.st_lumiSection==676) & (events.st_eventId==1161700016)]
         self.setupYearDependency(events)
         events  = self.updateJetColl(events)
         events  = self.addMainColoumns(events)
@@ -281,10 +261,15 @@ class monoHbbProcessor(processor.ProcessorABC):
         selection.add("bmass", ak.any(events.DiJetMass < 150,axis=1) & ak.any(events.DiJetMass > 100,axis=1))
         selection.add("minDphi",events.minDphi_jetMet>0.4)
         selection.add("invrtminDphi",events.minDphi_jetMet<0.4)
-        selection.add("nfjet",events.nfjet==1)
+        selection.add("nfjet",events.nfjetsel==1)
         selection.add("noIsobjet",ak.num(events.isobjetpt)==0)
         selection.add("nIsojet",ak.num(events.isojetpt)<=2)
 
+        selection.add("OneElectron", events.ntightEle==1)
+        selection.add("OneMuon",    events.ntightMu==1)
+       
+        #selection.add("Recoil200", (ak.any(events.werecoilPt>200, axis=1)) | (ak.any(events.wmurecoilPt>200, axis=1)) | (ak.any(events.zmumurecoilPt>200, axis=1)) | (ak.any(events.zeerecoilPt>200, axis=1)))
+        #selection.add("Recoil250", ak.any(events.werecoilPt>250) | ak.any(events.wmurecoilPt>250) | ak.any(events.zmumurecoilPt>250) | ak.any(events.zeerecoilPt>250))
 
         '''
         --------------------------------------------
@@ -308,6 +293,8 @@ class monoHbbProcessor(processor.ProcessorABC):
            goodevent = selection.require(**cuts)
            if region.startswith("sr"):
                 fout["monoHbb_SR_boosted"] = fillbranch_B(events,goodevent,weights["Boosted"])
+           if region.startswith("qcd"):
+                fout["monoHbb_qcd_boosted"] = fillbranch_B(events,goodevent,weights["Boosted"])
 
 
         for region, cuts in regions_R.items():
@@ -315,6 +302,8 @@ class monoHbbProcessor(processor.ProcessorABC):
          #   weights = self.addWeights(events)[goodevent]
             if region.startswith("sr"):
                 fout["monoHbb_SR_resolved"] = fillbranch_R(events,goodevent,weights["Resolved"])
+            if region.startswith("qcd"):
+                fout["monoHbb_qcd_resolved"] = fillbranch_R(events,goodevent,weights["Resolved"])
 
         totalevents      =events.metadata['totalevents']
         totalweightevents=events.metadata['totalweightevents']

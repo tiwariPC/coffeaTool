@@ -62,7 +62,7 @@ class monoHbbProcessor(processor.ProcessorABC):
         corr_met = dense_lookup(np.array(self.ResolvedmetSF["center"]),np.array(self.ResolvedmetSFRange))
         corr_met_B = dense_lookup(np.array(self.BoostedmetSF["center"]),np.array(self.BoostedmetSFRange) )
         corr_pu  = dense_lookup(np.array(self.PileReweightHisto["center"]),np.array(self.PileReweightRange))
-
+        
         weights["Boosted"].add("metSF",weight=corr_met_B(events.st_METXYCorr_Met),weightUp=corr_met_B(events.st_METXYCorr_Met),weightDown=corr_met_B(events.st_METXYCorr_Met))
         weights["Boosted"].add("pileupSF",weight=corr_pu(events.st_pu_nTrueInt),weightUp=corr_pu(events.st_pu_nTrueInt),weightDown=corr_pu(events.st_pu_nTrueInt))
     
@@ -236,7 +236,7 @@ class monoHbbProcessor(processor.ProcessorABC):
         print ('\n'+"================ Processor  is running now =================="+'\n')
 
         dataset = events.metadata['dataset']
-        events = events[(events.st_runId==306154) & (events.st_lumiSection==676) & (events.st_eventId==1161700016)]
+        #events = events[(events.st_runId==306154) & (events.st_lumiSection==676) & (events.st_eventId==1161700016)]
         self.setupYearDependency(events)
         events  = self.updateJetColl(events)
         events  = self.addMainColoumns(events)

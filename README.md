@@ -29,3 +29,7 @@ When you login into lxplus. Please make sure to setup environment first using co
 python  processSample.py -m   -y YEAR  -tag outputfolderName  -i rootfilename
 ```
 
+## Run jobs on lxplus Condor
+```
+. submitjobs.sh
+```

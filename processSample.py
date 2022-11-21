@@ -1,7 +1,7 @@
 import awkward as ak
 from coffea.nanoevents import NanoEventsFactory,BaseSchema
 import uproot
-from monoHbbProcessor_v2 import monoHbbProcessor
+from monoHbbProcessor import monoHbbProcessor
 import sys, optparse,argparse
 import os
 

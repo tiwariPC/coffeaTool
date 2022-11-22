@@ -1,11 +1,11 @@
 # coffeaTool (Reading data with coffea NanoEvents)
 ### for more information : https://coffeateam.github.io/coffea/installation.html
 ### Nano AOD Data tier : https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookNanoAOD
-coffea setup for monohbb run2
+coffea setup for bbMET run2
 
 
 ## Setup virtual environment (lxplus)
-login into lxplus. Make a directory and setup vertual invironment  
+login into lxplus. Make a directory and setup vertual invironment
 ```
 mkdir coffeaFramework
 cd coffeaFramework
@@ -14,7 +14,7 @@ source my_env/bin/activate
 pip install coffea
 ```
 
-## copy code 
+## copy code
 ```
 
 git clone git@github.com:deepakcern/coffeaTool.git

@@ -2,9 +2,9 @@ import awkward as ak
 from coffea.nanoevents import NanoEventsFactory, NanoAODSchema
 import data_2017.SFFactory_2017 as sf17
 from coffea.lookup_tools.dense_lookup import dense_lookup
-from MyProcessor import MyProcessor
+from bbMETProcessor import myProcessor
 
-fname = "/eos/cms/store/group/phys_exotica/monoHiggs/monoHbb/nanoAODtest/TTToSem_2017.root"
+fname = "/eos/cms/store/group/phys_exotica/monoHiggs/bbMET/nanoAODtest/TTToSem_2017.root"
 
 events = NanoEventsFactory.from_root(
     fname,
@@ -12,6 +12,6 @@ events = NanoEventsFactory.from_root(
     metadata={"dataset": "TT"}
 ).events()
 
-p = MyProcessor()
+p = myProcessor()
 out = p.process(events)
 print (out)

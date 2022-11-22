@@ -1,15 +1,50 @@
 
 
-regions_R = {"sr": {"trigger":True,"noElectron":True, "noMuon":True, "noPhoton":True,"noTau":True,"metcut":True,"nJets":True,"twobJets":True,"bmass":True,"minDphi":True},
-             "qcd":{"trigger":True,"noElectron":True, "noMuon":True, "noPhoton":True,"noTau":True,"metcut":True,"nJets":True,"twobJets":True,"bmass":True,"invrtminDphi":True}}
+regions = {
+         "sr1b": {"mettrigger":True, "noElectron":True, "noMuon":True, "noPhoton":True, "noTau":True, "metcut":True, "nJetsSR1":True, "leadJetpt":True, "onebJet":True, "minDphi":True, "dpfCaloSR":True},
+
+         "sr2b": {"mettrigger":True, "noElectron":True, "noMuon":True, "noPhoton":True, "noTau":True, "metcut":True, "nJetsSR2":True, "leadJetpt":True, "twobJets":True, "minDphi":True, "dpfCaloSR":True},
+
+         "zee2j": {"eletrigger":True, "twoElectron":True, "noMuon":True, "noPhoton":True, "noTau":True, "recoilcut":True, "nJetsZ1":True, "leadJetpt":True, "minDphi":True, "zeMass":True, "dpfCaloZeeCR":True},
+
+         "zee3j": {"eletrigger":True, "twoElectron":True, "noMuon":True, "noPhoton":True, "noTau":True, "recoilcut":True, "nJetsZ2":True, "leadJetpt":True, "minDphi":True, "zeMass":True, "dpfCaloZeCR":True},
+
+         "zmumu2j": {"mettrigger":True, "noElectron":True, "twoMuon":True, "noPhoton":True, "noTau":True, "recoilcut":True, "nJetsZ1":True, "leadJetpt":True, "minDphi":True, "zmuMass":True, "dpfCaloZmuCR":True},
+
+         "zmumu3j": {"mettrigger":True, "noElectron":True, "twoMuon":True, "noPhoton":True, "noTau":True, "recoilcut":True, "nJetsZ2":True, "leadJetpt":True, "minDphi":True, "zmuMass":True, "dpfCaloZmuCR":True},
+
+         "we1b": {"eletrigger":True, "oneElectron":True, "noMuon":True, "noPhoton":True, "noTau":True, "recoilcut":True, "nJetsW":True, "leadJetpt":True, "onebJet":True, "minDphi":True, "weMass":True, "dpfCaloWeCR":True},
+
+         "wmu1b": {"mettrigger":True, "noElectron":True, "oneMuon":True, "noPhoton":True, "noTau":True, "recoilcut":True, "nJetsW":True, "leadJetpt":True, "onebJet":True, "minDphi":True, "wmuMass":True, "dpfCaloWmuCR":True},
+
+         "tope2b": {"eletrigger":True, "oneElectron":True, "noMuon":True, "noPhoton":True, "noTau":True, "recoilcut":True, "nJetsTop":True, "leadJetpt":True, "onebJet":True, "minDphi":True, "weMass":True, "dpfCaloWeCR":True},
+
+         "topmu2b": {"mettrigger":True, "noElectron":True, "oneMuon":True, "noPhoton":True, "noTau":True, "recoilcut":True, "nJetsTop":True, "leadJetpt":True, "onebJet":True, "minDphi":True, "wmuMass":True, "dpfCaloWmuCR":True}
+}
 
 
 
-regions_B = {"sr": {"trigger":True,"noElectron":True, "noMuon":True, "noPhoton":True,"noTau":True,"metcut250":True,"nIsojet":True,"noIsobjet":True,"nfjet":True,"minDphi":True},
-            "qcd":{"trigger":True,"noElectron":True, "noMuon":True, "noPhoton":True,"noTau":True,"metcut250":True,"nIsojet":True,"noIsobjet":True,"nfjet":True,"invrtminDphi":True}}
 
-
-cutflow_R = {"trigger":{"trigger"},"eleVeto":{"noElectron"},"muonVeo":{"noElectron","noMuon"},"TauVeto":{"noElectron","noMuon","noTau"},"phoVeto":{"noElectron","noMuon","noPhoton"},"metcut":{"noElectron","noMuon","noPhoton","metcut"},"nJets":{"noElectron","noMuon","noPhoton","metcut","nJets"},"bJets":{"noElectron","noMuon","noPhoton","metcut","nJets","twobJets"},"mass":{"noElectron","noMuon","noPhoton","metcut","nJets","twobJets","bmass"},"minDphi":{"noElectron","noMuon","noPhoton","metcut","nJets","twobJets","bmass","minDphi"}}
-
-
-cutflow_B = {"trigger":{"trigger"},"eleVeto":{"noElectron"},"muonVeo":{"noElectron","noMuon"},"TauVeto":{"noElectron","noMuon","noTau"},"phoVeto":{"noElectron","noMuon","noPhoton"},"metcut":{"noElectron","noMuon","noPhoton","metcut250"},"nfjet":{"noElectron","noMuon","noPhoton","metcut250","nfjet"},"nIsojet":{"noElectron","noMuon","noPhoton","metcut250","nfjet","nIsojet"},"noIsobjet":{"noElectron","noMuon","noPhoton","metcut250","nfjet","nIsojet","noIsobjet"},"minDphi":{"noElectron","noMuon","noPhoton","metcut250","nfjet","nIsojet","noIsobjet","minDphi"}}
+cutflow = ['sr1b':{"trigger":{"mettrigger"},
+            "eleVeto":{"mettrigger", "noElectron"},
+            "muonVeo":{"mettrigger", "noElectron", "noMuon"},
+            "tauVeto":{"mettrigger","noElectron", "noMuon", "noTau"},
+            "phoVeto":{"mettrigger","noElectron", "noMuon", "noPhoton"},
+            "metcut":{"mettrigger","noElectron", "noMuon", "noPhoton", "metcut"},
+            "nJets":{"mettrigger","noElectron", "noMuon", "noPhoton", "metcut", "nJetsSR1", "leadJetpt"},
+            "bJets":{"mettrigger","noElectron", "noMuon", "noPhoton", "metcut", "nJetsSR1",  "leadJetpt", "onebJet"},
+            "minDphi":{"mettrigger","noElectron", "noMuon", "noPhoton", "metcut", "nJetsSR1", "leadJetpt", "onebJet", "minDphi"},
+            "dpfCaloSR":{"mettrigger","noElectron", "noMuon", "noPhoton", "metcut", "nJetsSR1", "leadJetpt", "onebJet", "minDphi", "dpfCaloSR"}
+         },
+         'sr2b':{"trigger":{"mettrigger"},
+            "eleVeto":{"mettrigger", "noElectron"},
+            "muonVeo":{"mettrigger", "noElectron", "noMuon"},
+            "tauVeto":{"mettrigger","noElectron", "noMuon", "noTau"},
+            "phoVeto":{"mettrigger","noElectron", "noMuon", "noPhoton"},
+            "metcut":{"mettrigger","noElectron", "noMuon", "noPhoton", "metcut"},
+            "nJets":{"mettrigger","noElectron", "noMuon", "noPhoton", "metcut", "nJetsSR2", "leadJetpt"},
+            "bJets":{"mettrigger","noElectron", "noMuon", "noPhoton", "metcut", "nJetsSR2",  "leadJetpt", "twobJets"},
+            "minDphi":{"mettrigger","noElectron", "noMuon", "noPhoton", "metcut", "nJetsSR2", "leadJetpt", "twobJets", "minDphi"},
+            "dpfCaloSR":{"mettrigger","noElectron", "noMuon", "noPhoton", "metcut", "nJetsSR2", "leadJetpt", "twobJets", "minDphi", "dpfCaloSR"}
+         },
+      ]
